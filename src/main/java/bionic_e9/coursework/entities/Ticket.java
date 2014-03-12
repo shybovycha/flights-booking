@@ -17,7 +17,8 @@ public class Ticket {
 	@JoinColumn(name="flightId")
 	private Flight flight;
 	
-	private boolean selled;
+	/* TODO: change from String to enum TICKET_STATUS { AVAILABLE, BOOKED, SOLD } */
+	private String status;
 	
 	public Ticket() {
 	}
@@ -54,11 +55,11 @@ public class Ticket {
 		this.flight = flight;
 	}
 
-	public boolean isSelled() {
-		return selled;
+	public String getstatus() {
+		return this.status;
 	}
-
-	public void setSelled(boolean selled) {
-		this.selled = selled;
+	
+	public void setstatus(String status) {
+		this.status = status;
 	}
 }

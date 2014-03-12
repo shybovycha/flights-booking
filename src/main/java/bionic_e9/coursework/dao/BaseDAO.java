@@ -40,7 +40,18 @@ public class BaseDAO {
 	}
 	
 	public static <T> T save(final T entity) {
-		entityManager.persist(entity);
+		entityManager.getTransaction().begin();
+		
+	    if (!entityManager.contains(entity)) {
+	        // persist object - add to entity manager
+	    	entityManager.persist(entity);
+	        // flush entityManager - save to DB
+	    	entityManager.flush();
+	    }
+	    
+	    // commit transaction at all
+	    entityManager.getTransaction().commit();
+	    
 		return entity;
 	}
 	
