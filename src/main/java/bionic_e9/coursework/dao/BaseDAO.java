@@ -43,9 +43,10 @@ public class BaseDAO {
 		entityManager.getTransaction().begin();
 		
 	    if (!entityManager.contains(entity)) {
-	        // persist object - add to entity manager
 	    	entityManager.persist(entity);
-	        // flush entityManager - save to DB
+	    	entityManager.flush();
+	    } else {
+	    	entityManager.merge(entity);
 	    	entityManager.flush();
 	    }
 	    
@@ -66,5 +67,27 @@ public class BaseDAO {
 		}
 		
 		return entities;
+	}
+	
+	public static <T> List<T> all(Class<T> entityClass) {
+		String query = String.format("SELECT %s e", entityClass.toString());
+		TypedQuery<T> q = entityManager.createQuery(query, entityClass);
+		List<T> entities = null;
+		
+		try { 
+			entities = q.getResultList(); 
+		} finally { 
+			entityManager.close();
+		}
+		
+		return entities;
+	}
+	
+	public static <T> void destroy(Class<T> entityClass, int id) {
+		T entity = entityManager.find(entityClass, id);
+
+		entityManager.getTransaction().begin();
+		entityManager.remove(entity);
+		entityManager.getTransaction().commit();
 	}
 }

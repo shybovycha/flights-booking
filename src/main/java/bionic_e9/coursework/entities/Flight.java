@@ -30,6 +30,13 @@ public class Flight {
 		this.ticketCost = ticketCost;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("From: %s; To: %s; At: %s; Ticket cost: %.2f", 
+				this.getDeparture(), this.getDestination(), 
+				this.getDate(), this.getTicketCost());
+	}
+	
 	public int getId() {
 		return id;
 	}

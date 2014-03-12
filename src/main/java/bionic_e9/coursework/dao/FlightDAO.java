@@ -39,4 +39,8 @@ public class FlightDAO extends BaseDAO {
 		
 		return query(Flight.class, query);
 	}
+	
+	public static void destroy(int id) {
+		BaseDAO.destroy(Flight.class, id);
+	}
 }
