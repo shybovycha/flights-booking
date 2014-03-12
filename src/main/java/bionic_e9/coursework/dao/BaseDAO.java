@@ -9,11 +9,13 @@ import javax.persistence.*;
 public class BaseDAO {
 	protected static final String UNIT_NAME = "flights";
 	protected static EntityManagerFactory factory;
-	protected static EntityManager entityManager;
 	
 	static {
 		factory = Persistence.createEntityManagerFactory(UNIT_NAME);
-		entityManager = factory.createEntityManager();
+	}
+	
+	public static EntityManager getEntityManager() {
+		return factory.createEntityManager();
 	}
 	
 	public static Date str2date(String date) {
@@ -29,6 +31,7 @@ public class BaseDAO {
 	
 	public static <T> T find(Class<T> entityClass, int id) {
 		Object entity = null;
+		EntityManager entityManager = getEntityManager();
 		
 		try {
 			entity = entityManager.find(entityClass, id);
@@ -40,7 +43,9 @@ public class BaseDAO {
 	}
 	
 	public static <T> T save(final T entity) {
-		entityManager.getTransaction().begin();
+		EntityManager entityManager = getEntityManager();
+		EntityTransaction tx = entityManager.getTransaction();
+		tx.begin();
 		
 	    if (!entityManager.contains(entity)) {
 	    	entityManager.persist(entity);
@@ -51,12 +56,13 @@ public class BaseDAO {
 	    }
 	    
 	    // commit transaction at all
-	    entityManager.getTransaction().commit();
+	    tx.commit();
 	    
 		return entity;
 	}
 	
 	public static <T> List<T> query(Class<T> entityClass, String query) {
+		EntityManager entityManager = getEntityManager();
 		TypedQuery<T> q = entityManager.createQuery(query, entityClass);
 		List<T> entities = null;
 		
@@ -69,7 +75,20 @@ public class BaseDAO {
 		return entities;
 	}
 	
+	public static <T> int updateQuery(String query) {
+		EntityManager entityManager = getEntityManager();
+		EntityTransaction tx = entityManager.getTransaction();
+		int results = 0;
+		
+		tx.begin();
+		results = entityManager.createQuery(query).executeUpdate();
+		tx.commit();
+		
+		return results;
+	}
+	
 	public static <T> List<T> all(Class<T> entityClass) {
+		EntityManager entityManager = getEntityManager();
 		String query = String.format("SELECT %s e", entityClass.toString());
 		TypedQuery<T> q = entityManager.createQuery(query, entityClass);
 		List<T> entities = null;
@@ -84,10 +103,12 @@ public class BaseDAO {
 	}
 	
 	public static <T> void destroy(Class<T> entityClass, int id) {
+		EntityManager entityManager = getEntityManager();
 		T entity = entityManager.find(entityClass, id);
-
-		entityManager.getTransaction().begin();
+		EntityTransaction tx = entityManager.getTransaction();
+		
+		tx.begin();
 		entityManager.remove(entity);
-		entityManager.getTransaction().commit();
+		tx.commit();
 	}
 }

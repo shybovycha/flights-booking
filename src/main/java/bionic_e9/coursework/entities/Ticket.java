@@ -1,6 +1,12 @@
 package bionic_e9.coursework.entities;
 
+import java.sql.Date;
+import java.util.Calendar;
+
 import javax.persistence.*;
+
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 
 @Entity
 @Table(name="tickets")
@@ -11,7 +17,6 @@ public class Ticket {
 	
 	@Embedded
 	private Owner owner;
-	private int orderedAmount;
 	
 	@ManyToOne
 	@JoinColumn(name="flightId")
@@ -21,6 +26,46 @@ public class Ticket {
 	private String status;
 	
 	public Ticket() {
+		this.status = "AVAILABLE";
+	}
+	
+	public boolean isBooked() {
+		return this.status.equals("BOOKED");
+	}
+	
+	public boolean isAvailable() {
+		return this.status.equals("AVAILABLE");
+	}
+	
+	public boolean isSold() {
+		return this.status.equals("SOLD");
+	}
+	
+	public void makeAvailable() {
+		this.owner = null;
+		this.status = "AVAILABLE";
+	}
+	
+	public void makeBooked(Owner owner) {
+		this.owner = owner;
+		this.owner.setOwnerFrom(new Date(Calendar.getInstance().getTimeInMillis()));
+		this.status = "BOOKED";
+	}
+	
+	public DateTime bookedAt() {
+		if (this.isBooked() && this.owner != null) {
+			return new DateTime(this.owner.getOwnerFrom());
+		} else {
+			return null;
+		}
+	}
+	
+	public boolean isOutdated() {
+		return (Days.daysBetween(DateTime.now(), bookedAt()).getDays() > 3);
+	}
+	
+	public void makeSold() {
+		this.status = "SOLD";
 	}
 
 	public int getId() {
@@ -39,14 +84,6 @@ public class Ticket {
 		this.owner = owner;
 	}
 
-	public int getOrderedAmount() {
-		return orderedAmount;
-	}
-
-	public void setOrderedAmount(int orderedAmount) {
-		this.orderedAmount = orderedAmount;
-	}
-
 	public Flight getFlight() {
 		return flight;
 	}
@@ -55,11 +92,11 @@ public class Ticket {
 		this.flight = flight;
 	}
 
-	public String getstatus() {
+	public String getStatus() {
 		return this.status;
 	}
 	
-	public void setstatus(String status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 }
