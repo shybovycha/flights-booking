@@ -15,6 +15,32 @@ public class User {
 	
 	public User() {
 	}
+	
+	public User(String username, String password, String role) {
+		this.username = username;
+		this.password = password;
+		this.role = role;
+	}
+	
+	public boolean isPlainUser() {
+		return (this.role.equals("PLAIN"));
+	}
+	
+	public boolean isAccountant() {
+		return (this.role.equals("ACCOUNTANT"));
+	}
+	
+	public boolean isBookingAdministrator() {
+		return (this.role.equals("BOOKING_ADMINISTRATOR"));
+	}
+	
+	public boolean isBusinessAnalytic() {
+		return (this.role.equals("ANALYTIC"));
+	}
+	
+	public boolean isSuperUser() {
+		return (this.role.equals("SUPER"));
+	}
 
 	public int getId() {
 		return id;
