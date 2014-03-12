@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Wed Mar 12 14:54:08 EET 2014:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.1.1 - (1458268): instance a816c00e-0144-b65b-6a04-00000903d788 
+on database directory /home/shybovycha/workspace/coursework/flights with class loader sun.misc.Launcher$AppClassLoader@4821e115 
+Loaded from file:/home/shybovycha/.m2/repository/org/apache/derby/derby/10.10.1.1/derby-10.10.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.7.0_51-b13
+user.dir=/home/shybovycha/workspace/coursework
+os.name=Linux
+os.arch=amd64
+os.version=3.11.0-15-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
