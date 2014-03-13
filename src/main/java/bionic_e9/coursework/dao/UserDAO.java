@@ -9,6 +9,10 @@ public class UserDAO extends BaseDAO {
 		return find(User.class, id);
 	}
 	
+	public static void destroyAll() {
+		destroyAll(Ticket.class);
+	}
+	
 	public static List<User> all() {
 		return all(User.class);
 	}

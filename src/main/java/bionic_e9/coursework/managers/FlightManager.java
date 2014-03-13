@@ -10,6 +10,10 @@ public class FlightManager {
 		return FlightDAO.all();
 	}
 	
+	public static void destroyAll() {
+		FlightDAO.destroyAll();
+	}
+	
 	public static void deleteEmpty() {
 		String query = "DELETE FROM Flight f WHERE SIZE(f.tickets) = 0";
 		FlightDAO.updateQuery(query);
@@ -25,8 +29,7 @@ public class FlightManager {
 	
 	public static Flight create(String from, String to, String date, double ticketCost) {
 		Flight f = FlightDAO.create(from, to, date, ticketCost);
-		FlightDAO.save(f);
-		return f;
+		return FlightDAO.save(f);
 	}
 	
 	public static Flight update(int id, String from, String to, String date, float ticketCost) {
@@ -35,8 +38,7 @@ public class FlightManager {
 		f.setDestination(to);
 		f.setDate(BaseDAO.str2date(date));
 		f.setTicketCost(ticketCost);
-		FlightDAO.save(f);
-		return f;
+		return FlightDAO.save(f);
 	}
 	
 	public static void destroy(int id) {

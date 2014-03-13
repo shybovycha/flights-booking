@@ -1,7 +1,6 @@
 package bionic_e9.coursework.managers;
 
 import java.util.List;
-import java.util.TreeMap;
 
 import bionic_e9.coursework.dao.FlightDAO;
 import bionic_e9.coursework.dao.TicketDAO;
@@ -12,10 +11,30 @@ public class TicketManager {
 		return TicketDAO.all();
 	}
 	
+	public static void destroyAll() {
+		TicketDAO.destroyAll();
+	}
+	
+	public static List<Ticket> free(Flight flight) {
+		return TicketDAO.free(flight);
+	}
+	
 	public static Ticket create() {
 		Ticket t = new Ticket();
 		TicketDAO.save(t);
 		return t;
+	}
+	
+	public static void addFreeTickets(Flight flight, int amount) {
+		for (int i = 0; i < amount; i++) {
+			Ticket t = new Ticket();
+			t.setFlight(flight);
+			TicketDAO.save(t);
+			List<Ticket> tickets = flight.getTickets();
+			tickets.add(t);
+			flight.setTickets(tickets);
+			FlightDAO.save(flight);
+		}
 	}
 	
 	public static void addFreeTickets(int flightId, int amount) {
@@ -25,21 +44,45 @@ public class TicketManager {
 			Ticket t = new Ticket();
 			t.setFlight(flight);
 			TicketDAO.save(t);
+			List<Ticket> tickets = flight.getTickets();
+			tickets.add(t);
+			flight.setTickets(tickets);
+			FlightDAO.save(flight);
 		}
 	}
 	
-	public static int bookTickets(List<Ticket> tickets, Owner owner) {
-		int counter = 0;
+	public static int bookTickets(int flightId, int count, Owner owner) {
+		List<Ticket> tickets = TicketDAO.free(flightId);
 		
-		for (Ticket t : tickets) {
+		int bound = Math.min(count, tickets.size());
+		
+		for (int i = 0; i < bound; i++) {
+			Ticket t = tickets.get(i);
+			
 			if (t.isAvailable()) {
 				t.makeBooked(owner);
 				TicketDAO.save(t);
-				counter++;
 			}
 		}
 		
-		return counter;
+		return bound;
+	}
+	
+	public static int bookTickets(Flight flight, int count, Owner owner) {
+		List<Ticket> tickets = TicketDAO.free(flight);
+		
+		int bound = Math.min(count, tickets.size());
+		
+		for (int i = 0; i < bound; i++) {
+			Ticket t = tickets.get(i);
+			
+			if (t.isAvailable()) {
+				t.makeBooked(owner);
+				TicketDAO.save(t);
+			}
+		}
+		
+		return bound;
 	}
 	
 	public static int removeOutdatedOrders() {
@@ -71,7 +114,11 @@ public class TicketManager {
 		return counter;
 	}
 	
-	public static TreeMap<String, Float> soldReport(String dateFrom, String dateTo) {
-		return TicketDAO.soldReportData(dateFrom, dateTo);
+	public static List<SoldReportRow> soldReportByDate(String dateFrom, String dateTo) {
+		return TicketDAO.soldReportByDate(dateFrom, dateTo);
+	}
+	
+	public static List<SoldReportRow> soldReportByDestination(String dateFrom, String dateTo) {
+		return TicketDAO.soldReportByDestination(dateFrom, dateTo);
 	}
 }

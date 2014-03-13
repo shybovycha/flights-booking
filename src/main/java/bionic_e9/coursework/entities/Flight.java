@@ -3,11 +3,12 @@ package bionic_e9.coursework.entities;
 import javax.persistence.*;
 
 import java.sql.Date;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="flights")
-public class Flight {
+public class Flight extends AbstractEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
@@ -17,8 +18,8 @@ public class Flight {
 	private java.sql.Date date;
 	private float ticketCost;
 	
-	@OneToMany(mappedBy="flight")
-	private Collection<Ticket> tickets;
+	@OneToMany(mappedBy="flight", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	private List<Ticket> tickets = new ArrayList<Ticket>();
 	
 	public Flight() {
 	}
@@ -81,11 +82,11 @@ public class Flight {
 		return tickets.size();
 	}
 
-	public Collection<Ticket> getTickets() {
+	public List<Ticket> getTickets() {
 		return tickets;
 	}
 
-	public void setTickets(Collection<Ticket> tickets) {
+	public void setTickets(List<Ticket> tickets) {
 		this.tickets = tickets;
 	}
 }

@@ -1,10 +1,9 @@
 package bionic_e9.coursework.dao;
 
 import java.util.List;
-import java.util.TreeMap;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
+import javax.persistence.EntityTransaction;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -15,6 +14,10 @@ import bionic_e9.coursework.entities.*;
 public class TicketDAO extends BaseDAO {
 	public static Ticket find(int id) {
 		return find(Ticket.class, id);
+	}
+	
+	public static void destroyAll() {
+		destroyAll(Ticket.class);
 	}
 	
 	public static List<Ticket> all() {
@@ -40,33 +43,62 @@ public class TicketDAO extends BaseDAO {
 		return TicketDAO.query(Ticket.class, query);
 	}
 	
+	public static List<Ticket> ordered(int flightId) {
+		String query = String.format(
+				"SELECT Ticket t JOIN Flight f WHERE t.status = 'ORDERED' AND t.owner IS NOT NULL AND f.id = %d",
+				flightId);
+		
+		return TicketDAO.query(Ticket.class, query);
+	}
+	
+	public static List<Ticket> free() {
+		String query = "SELECT Ticket t WHERE t.status = 'ORDERED' AND t.owner IS NULL";
+		
+		return TicketDAO.query(Ticket.class, query);
+	}
+	
+	public static List<Ticket> free(int flightId) {
+		String query = String.format(
+				"SELECT t FROM Ticket t JOIN t.flight f WHERE t.status = 'AVAILABLE' AND t.owner IS NULL AND f.id = %d",
+				flightId);
+		
+		return TicketDAO.query(Ticket.class, query);
+	}
+	
+	public static List<Ticket> free(Flight flight) {
+		return free(flight.getId());
+	}
+	
 	public static List<Ticket> sold() {
 		String query = "SELECT Ticket t WHERE t.status = 'SOLD' AND t.owner IS NOT NULL";
 		
 		return TicketDAO.query(Ticket.class, query);
 	}
 	
-	public static TreeMap<String, Float> soldReportData(String from, String to) {
+	public static List<SoldReportRow> soldReportByDate(String from, String to) {
 		String query = String.format(
-				"SELECT date, SUM(cost) FROM (" +
-						"SELECT t.owner.ownerFrom AS date, f.ticketCost AS cost FROM Ticket t JOIN t.flight f" +
-						"WHERE t.status = 'SOLD' AND t.owner IS NOT NULL AND t.owner.ownerFrom BETWEEN %s and %s" +
-						"GROUP BY date" +
-				")",
-				from, to);
+			"SELECT NEW bionic_e9.coursework.entities.SoldReportLine(date, SUM(cost), COUNT(id)) FROM (" +
+				"SELECT t.id, t.owner.ownerFrom AS date, f.ticketCost AS cost FROM Ticket t JOIN t.flight f" +
+				"WHERE t.status = 'SOLD' AND t.owner IS NOT NULL AND t.owner.ownerFrom BETWEEN %s and %s" +
+				"GROUP BY date" +
+			")",
+			from, to);
 		
-		EntityManager entityManager = getEntityManager();
-		TypedQuery<Object[]> q = entityManager.createQuery(query, Object[].class);
-		List<Object[]> resultList = q.getResultList();
+		return TicketDAO.query(SoldReportRow.class, query);
+	}
+	
+	public static List<SoldReportRow> soldReportByDestination(String from, String to) {
+		String query = String.format(
+			"SELECT " +
+				"NEW bionic_e9.coursework.entities.SoldReportLine(date, destination, SUM(cost), COUNT(id)) " +
+			"FROM (" +
+				"SELECT t.id AS id, t.owner.ownerFrom AS date, f.destination AS destination, f.ticketCost AS cost " +
+				"FROM Ticket t JOIN t.flight f" +
+				"WHERE t.status = 'SOLD' AND t.owner IS NOT NULL AND t.owner.ownerFrom BETWEEN %s and %s" +
+				"GROUP BY date, destination" +
+			")",
+			from, to);
 		
-		TreeMap<String, Float> resultMap = new TreeMap<String, Float>();
-		
-		for (Object[] fields : resultList) {
-			String date = (String) fields[0];
-			Float sum = (Float) fields[1];
-			resultMap.put(date, sum);
-		}
-		
-		return resultMap;
+		return TicketDAO.query(SoldReportRow.class, query);
 	}
 }

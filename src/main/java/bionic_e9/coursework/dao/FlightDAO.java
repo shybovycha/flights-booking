@@ -9,6 +9,10 @@ import bionic_e9.coursework.entities.*;
 public class FlightDAO extends BaseDAO {
 	protected static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 	
+	public static void destroyAll() {
+		destroyAll(Flight.class);
+	}
+	
 	public static Flight create(String departure, String destination, String date, double ticketCost) {
 		return new Flight(departure, destination, str2date(date), (float) ticketCost);
 	}
